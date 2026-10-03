@@ -1,4 +1,10 @@
 <script>
+const PRIORITY_COLORS = {
+  low: '#6e6e73',
+  medium: '#b87800',
+  high: '#c41e3a',
+}
+
 export default {
   data() {
     return {
@@ -6,10 +12,12 @@ export default {
       userName: '',
       nameInput: '',
       taskInput: '',
+      priorityInput: 'medium',
       nextId: 3,
+      priorityColors: PRIORITY_COLORS,
       tasks: [
-        { id: 1, title: 'Write acceptance criteria', status: 'todo' },
-        { id: 2, title: 'Spike API contract', status: 'in-progress' },
+        { id: 1, title: 'Write acceptance criteria', status: 'todo', priority: 'high' },
+        { id: 2, title: 'Spike API contract', status: 'in-progress', priority: 'medium' },
       ],
     }
   },
@@ -33,8 +41,10 @@ export default {
         id: this.nextId++,
         title,
         status: 'todo',
+        priority: this.priorityInput,
       })
       this.taskInput = ''
+      this.priorityInput = 'medium'
     },
     removeTask(id) {
       this.tasks = this.tasks.filter((task) => task.id !== id)
@@ -42,6 +52,14 @@ export default {
     moveTask(id, status) {
       const task = this.tasks.find((item) => item.id === id)
       if (task) task.status = status
+    },
+    priorityStyle(task) {
+      return { borderLeft: `4px solid ${PRIORITY_COLORS[task.priority]}` }
+    },
+    cyclePriority(task) {
+      const order = ['low', 'medium', 'high']
+      const index = order.indexOf(task.priority)
+      task.priority = order[(index + 1) % order.length]
     },
   },
 }
@@ -66,6 +84,11 @@ export default {
 
     <form @submit.prevent="addTask">
       <input v-model="taskInput" type="text" placeholder="New task" required>
+      <select v-model="priorityInput">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
       <button type="submit">Add</button>
     </form>
 
@@ -73,8 +96,19 @@ export default {
       <div class="project-card">
         <h3>To do</h3>
         <ul>
-          <li v-for="task in tasksFor('todo')" :key="task.id">
+          <li
+            v-for="task in tasksFor('todo')"
+            :key="task.id"
+            :style="priorityStyle(task)"
+          >
             {{ task.title }}
+            <button
+              type="button"
+              :style="{ color: priorityColors[task.priority] }"
+              @click="cyclePriority(task)"
+            >
+              {{ task.priority }}
+            </button>
             <button type="button" @click="moveTask(task.id, 'in-progress')">→</button>
             <button type="button" @click="removeTask(task.id)">Remove</button>
           </li>
@@ -83,8 +117,19 @@ export default {
       <div class="project-card">
         <h3>In progress</h3>
         <ul>
-          <li v-for="task in tasksFor('in-progress')" :key="task.id">
+          <li
+            v-for="task in tasksFor('in-progress')"
+            :key="task.id"
+            :style="priorityStyle(task)"
+          >
             {{ task.title }}
+            <button
+              type="button"
+              :style="{ color: priorityColors[task.priority] }"
+              @click="cyclePriority(task)"
+            >
+              {{ task.priority }}
+            </button>
             <button type="button" @click="moveTask(task.id, 'todo')">←</button>
             <button type="button" @click="moveTask(task.id, 'done')">→</button>
             <button type="button" @click="removeTask(task.id)">Remove</button>
@@ -94,8 +139,19 @@ export default {
       <div class="project-card">
         <h3>Done</h3>
         <ul>
-          <li v-for="task in tasksFor('done')" :key="task.id">
+          <li
+            v-for="task in tasksFor('done')"
+            :key="task.id"
+            :style="priorityStyle(task)"
+          >
             {{ task.title }}
+            <button
+              type="button"
+              :style="{ color: priorityColors[task.priority] }"
+              @click="cyclePriority(task)"
+            >
+              {{ task.priority }}
+            </button>
             <button type="button" @click="moveTask(task.id, 'in-progress')">←</button>
             <button type="button" @click="removeTask(task.id)">Remove</button>
           </li>
