@@ -39,6 +39,10 @@ export default {
     removeTask(id) {
       this.tasks = this.tasks.filter((task) => task.id !== id)
     },
+    moveTask(id, status) {
+      const task = this.tasks.find((item) => item.id === id)
+      if (task) task.status = status
+    },
   },
 }
 </script>
@@ -71,6 +75,7 @@ export default {
         <ul>
           <li v-for="task in tasksFor('todo')" :key="task.id">
             {{ task.title }}
+            <button type="button" @click="moveTask(task.id, 'in-progress')">→</button>
             <button type="button" @click="removeTask(task.id)">Remove</button>
           </li>
         </ul>
@@ -80,6 +85,8 @@ export default {
         <ul>
           <li v-for="task in tasksFor('in-progress')" :key="task.id">
             {{ task.title }}
+            <button type="button" @click="moveTask(task.id, 'todo')">←</button>
+            <button type="button" @click="moveTask(task.id, 'done')">→</button>
             <button type="button" @click="removeTask(task.id)">Remove</button>
           </li>
         </ul>
@@ -89,6 +96,7 @@ export default {
         <ul>
           <li v-for="task in tasksFor('done')" :key="task.id">
             {{ task.title }}
+            <button type="button" @click="moveTask(task.id, 'in-progress')">←</button>
             <button type="button" @click="removeTask(task.id)">Remove</button>
           </li>
         </ul>
